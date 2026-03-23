@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-/* ─── CSS Variables ─────────────────────────────────────────────────────── */
+/*CSS Variables*/
 :root {
   --bg:          #f5f0e8;
   --bg2:         #ede7d9;
@@ -32,7 +32,7 @@
   --shadow-lg:   0 8px 40px rgba(0,0,0,0.13);
 }
 
-/* ─── Reset & Base ──────────────────────────────────────────────────────── */
+/* Reset & Base */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -44,7 +44,7 @@ body {
   line-height: 1.6;
 }
 
-/* ─── Decorative pill-pattern background ───────────────────────────────── */
+/* Decorative pill-pattern background */
 body::before {
   content: '';
   position: fixed;
@@ -57,7 +57,7 @@ body::before {
   z-index: 0;
 }
 
-/* ─── Nav ───────────────────────────────────────────────────────────────── */
+/* Nav */
 nav {
   position: sticky;
   top: 0;
@@ -71,7 +71,7 @@ nav {
   justify-content: space-between;
   height: 64px;
 }
-/* ── Nav logos wrapper (both logos side by side) ── */
+/* Nav logos wrapper (both logos side by side) */
 .nav-logos {
   display: flex;
   align-items: center;
@@ -156,7 +156,7 @@ nav {
   color: #fff;
 }
 
-/* ─── Hero Section ──────────────────────────────────────────────────────── */
+/* Hero Section */
 #home {
   position: relative;
   z-index: 1;
@@ -251,7 +251,7 @@ nav {
   color: var(--text3);
 }
 
-/* ─── Section Titles ────────────────────────────────────────────────────── */
+/* Section Titles */
 .section-header {
   display: flex;
   align-items: baseline;
@@ -281,7 +281,7 @@ nav {
   border-radius: 100px;
 }
 
-/* ─── Scanner Section ───────────────────────────────────────────────────── */
+/* Scanner Section */
 #scan {
   position: relative;
   z-index: 1;
@@ -416,7 +416,7 @@ nav {
 .btn-camera:hover { border-color: var(--accent3); color: var(--accent3); }
 #cameraStream { display: none; width: 100%; border-radius: 8px; margin-top: 0.5rem; }
 
-/* ─── Spinner & Progress ────────────────────────────────────────────────── */
+/* Spinner & Progress */
 .progress-bar-wrap {
   background: var(--bg2);
   border-radius: 100px;
@@ -441,7 +441,7 @@ nav {
   display: none;
 }
 
-/* ─── Results ───────────────────────────────────────────────────────────── */
+/* Results */
 #results {
   position: relative;
   z-index: 1;
@@ -571,7 +571,7 @@ nav {
 .btn-sm:hover { border-color: var(--accent); color: var(--accent); background: var(--pill-bg); }
 .btn-sm.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-/* ─── AI Chat (inline, below result) ───────────────────────────────────── */
+/* AI Chat (inline, below result) */
 #inline-chat {
   background: var(--bg);
   border-top: 1px solid var(--border);
@@ -631,7 +631,7 @@ nav {
 }
 .btn-send-inline:hover { background: #153f7a; }
 
-/* ─── History Section ───────────────────────────────────────────────────── */
+/* History Section */
 #history {
   position: relative;
   z-index: 1;
@@ -679,7 +679,7 @@ nav {
 }
 .btn-clear-history:hover { background: var(--accent2); color: #fff; }
 
-/* ─── Help Section (WhatsApp-style chat) ─────────────────────────────────  */
+/* Help Section (WhatsApp-style chat)  */
 #help {
   position: relative;
   z-index: 1;
@@ -874,7 +874,7 @@ nav {
   40% { transform: translateY(-6px); opacity: 1; }
 }
 
-/* ─── Audio player ──────────────────────────────────────────────────────── */
+/* Audio player */
 #audioPlayer { display: none; }
 .audio-bar {
   background: var(--bg2);
@@ -888,7 +888,7 @@ nav {
 }
 .audio-bar audio { flex: 1; height: 32px; }
 
-/* ─── Footer ────────────────────────────────────────────────────────────── */
+/* Footer */
 footer {
   position: relative;
   z-index: 1;
@@ -926,12 +926,12 @@ footer .footer-disclaimer {
 }
 .footer-logo-img:hover { opacity: 1; }
 
-/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+/* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 100px; }
 
-/* ─── Animations ────────────────────────────────────────────────────────── */
+/* Animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -943,7 +943,7 @@ footer .footer-disclaimer {
   50% { opacity: 0.4; }
 }
 
-/* ─── Floating Chat FAB ─────────────────────────────────────────────────── */
+/* Floating Chat FAB */
 #fab-chat {
   position: fixed;
   bottom: 28px;
@@ -992,7 +992,7 @@ footer .footer-disclaimer {
   #fab-chat  { padding: 16px; border-radius: 50%; }
 }
 
-/* ─── FAB Chat Modal ────────────────────────────────────────────────────── */
+/* FAB Chat Modal */
 #fab-backdrop {
   display: none;
   position: fixed;
@@ -1062,7 +1062,7 @@ footer .footer-disclaimer {
 </head>
 <body>
 
-<!-- ─── NAV ──────────────────────────────────────────────────────────────── -->
+<!-- NAV -->
 <nav>
   <div class="nav-logos">
     <div class="nav-company-logo">
@@ -1112,7 +1112,7 @@ footer .footer-disclaimer {
   </ul>
 </nav>
 
-<!-- ─── HERO ─────────────────────────────────────────────────────────────── -->
+<!-- HERO -->
 <section id="home">
   <div class="hero-eyebrow">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/><path d="M12 8v8M8 12h8"/></svg>
@@ -1146,7 +1146,7 @@ footer .footer-disclaimer {
   </div>
 </section>
 
-<!-- ─── SCAN SECTION ─────────────────────────────────────────────────────── -->
+<!-- SCAN SECTION -->
 <section id="scan">
   <div class="section-header">
     <h2 class="section-title">Medicine Scanner</h2>
@@ -1216,7 +1216,7 @@ footer .footer-disclaimer {
   </div>
 </section>
 
-<!-- ─── RESULTS ───────────────────────────────────────────────────────────── -->
+<!-- RESULTS -->
 <section id="results">
   <div class="section-header">
     <h2 class="section-title">Analysis Report</h2>
@@ -1311,21 +1311,6 @@ footer .footer-disclaimer {
       <audio id="audioPlayer" controls></audio>
     </div>
 
-    <!-- Inline chat (Ask AI, below result) -->
-    <!-- <div id="inline-chat" style="display:none;">
-      <div class="inline-chat-title">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Ask about this medicine
-      </div>
-      <div class="inline-chat-messages" id="inlineMsgs"></div>
-      <div class="inline-chat-row">
-        <input type="text" id="inlineChatInput" placeholder="e.g. Can I take this with food?" />
-        <button class="btn-send-inline" id="inlineSendBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        </button>
-      </div>
-    </div> -->
-
     <div class="meta-bar" id="metaBar">
       <span class="meta-item">OCR: <strong id="metaOcrRaw">-</strong></span>
       <span class="meta-item">Fuzzy: <strong id="metaFuzzy">-</strong></span>
@@ -1336,7 +1321,7 @@ footer .footer-disclaimer {
   </div>
 </section>
 
-<!-- ─── HISTORY ───────────────────────────────────────────────────────────── -->
+<!-- HISTORY -->
 <section id="history">
   <div class="section-header">
     <h2 class="section-title">Scan History</h2>
@@ -1354,7 +1339,7 @@ footer .footer-disclaimer {
 </section>
 
 
-<!-- ─── FLOATING AI CHAT BUTTON + MODAL ───────────────────────────────────── -->
+<!-- FLOATING AI CHAT BUTTON + MODAL -->
 
 <!-- FAB Button -->
 <div id="fab-chat" onclick="toggleFABChat()" title="Ask MediScan AI">
@@ -1449,15 +1434,15 @@ footer .footer-disclaimer {
   </div>
 </footer>
 
-<!-- ─── JAVASCRIPT ─────────────────────────────────────────────────────────── -->
+<!-- JAVASCRIPT -->
 <script>
-/* ── Globals ──────────────────────────────────────────────────────────────── */
+/* Globals */
 let currentResult  = null;
 let currentLang    = 'English';
 let cameraStream   = null;
 let inlineChatOpen = false;
 
-/* ── Smooth scroll helpers ────────────────────────────────────────────────── */
+/* Smooth scroll helpers */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     const target = document.querySelector(a.getAttribute('href'));
@@ -1465,7 +1450,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-/* ── Drop zone & file input ───────────────────────────────────────────────── */
+/* Drop zone & file input */
 const dropZone   = document.getElementById('dropZone');
 const fileInput  = document.getElementById('fileInput');
 const previewImg = document.getElementById('previewImg');
@@ -1488,7 +1473,7 @@ function loadPreview(file) {
   analyzeBtn.disabled = false;
 }
 
-/* ── Camera ───────────────────────────────────────────────────────────────── */
+/* Camera */
 const cameraBtn   = document.getElementById('cameraBtn');
 const captureBtn  = document.getElementById('captureBtn');
 const cameraVideo = document.getElementById('cameraStream');
@@ -1526,10 +1511,10 @@ function stopCamera() {
   cameraBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Use Camera`;
 }
 
-/* ── Language select ──────────────────────────────────────────────────────── */
+/* Language select */
 document.getElementById('langSelect').addEventListener('change', e => { currentLang = e.target.value; });
 
-/* ── Analyse ──────────────────────────────────────────────────────────────── */
+/* Analyse */
 const loadingSteps  = document.getElementById('loadingSteps');
 const progressWrap  = document.getElementById('progressWrap');
 const progressBar   = document.getElementById('progressBar');
@@ -1590,7 +1575,7 @@ analyzeBtn.addEventListener('click', async () => {
   }
 });
 
-/* ── Render result ────────────────────────────────────────────────────────── */
+/* Render result */
 function renderResult(r) {
   currentResult = r;
   document.getElementById('rBrandName').textContent      = r.brand_name      || '-';
@@ -1636,7 +1621,7 @@ function renderResult(r) {
   document.getElementById('fab-ping').style.display = 'block';
 }
 
-/* ── Audio TTS ────────────────────────────────────────────────────────────── */
+/* Audio TTS */
 document.getElementById('ttsBtn').addEventListener('click', async () => {
   if (!currentResult) return;
   const r = currentResult;
@@ -1656,7 +1641,7 @@ document.getElementById('ttsBtn').addEventListener('click', async () => {
   audioEl.play();
 });
 
-/* ── Calendar ─────────────────────────────────────────────────────────────── */
+/* Calendar */
 document.getElementById('calBtn').addEventListener('click', () => {
   const title = encodeURIComponent('Take ' + (currentResult?.brand_name || 'Medicine'));
   const dates = new Date();
@@ -1665,7 +1650,7 @@ document.getElementById('calBtn').addEventListener('click', () => {
   window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dt}/${dt}`, '_blank');
 });
 
-/* ── New Scan ─────────────────────────────────────────────────────────────── */
+/* New Scan */
 document.getElementById('newScanBtn').addEventListener('click', () => {
   document.getElementById('results').style.display = 'none';
   fileInput.value = '';
@@ -1674,7 +1659,7 @@ document.getElementById('newScanBtn').addEventListener('click', () => {
   document.getElementById('scan').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
-/* ── Inline chat toggle ───────────────────────────────────────────────────── */
+/* Inline chat toggle */
 document.getElementById('toggleChatBtn').addEventListener('click', () => {
   toggleFABChat();
 });
@@ -1693,7 +1678,7 @@ async function sendInlineChat(question) {
   waSendMessage(question);
 }
 
-/* ── FAB Chat Modal ───────────────────────────────────────────────────────── */
+/* FAB Chat Modal */
 function toggleFABChat() {
   const modal = document.getElementById('fab-modal');
   if (modal.style.display === 'flex') { closeFABChat(); } else { openFABChat(); }
@@ -1714,7 +1699,7 @@ function closeFABChat() {
 // Close modal on Escape key
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFABChat(); });
 
-/* ── History ──────────────────────────────────────────────────────────────── */
+/* History */
 function saveToHistory(result) {
   const history = JSON.parse(localStorage.getItem('mediscan_history') || '[]');
   history.unshift({ ...result, timestamp: new Date().toLocaleString() });
@@ -1765,7 +1750,7 @@ document.getElementById('clearHistoryBtn').addEventListener('click', () => {
   }
 });
 
-/* ── WA Help Chat ─────────────────────────────────────────────────────────── */
+/* WA Help Chat */
 const waInput    = document.getElementById('waInput');
 const waSendBtn  = document.getElementById('waSendBtn');
 const waChatArea = document.getElementById('waChatArea');
@@ -1821,7 +1806,7 @@ waInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey)
 
 function waSendSuggestion(chip) { waSendMessage(chip.textContent); }
 
-/* ── Init ─────────────────────────────────────────────────────────────────── */
+/* Init */
 renderHistory();
 </script>
 </body>

@@ -1,32 +1,32 @@
-# ── Web ───────────────────────────────────────────────────────────────────
+#Web
 flask>=3.0.0
 python-dotenv>=1.0.0
 gunicorn>=21.2.0
 
-# ── Google AI ─────────────────────────────────────────────────────────────
+#Google AI
 google-genai>=0.5.0
 
-# ── OCR ───────────────────────────────────────────────────────────────────
+#OCR
 easyocr>=1.7.1                 # Primary OCR — handles rotated/stylised labels
 pytesseract>=0.3.10            # Fallback (also install: sudo apt install tesseract-ocr)
 # google-cloud-vision>=3.4.0  # Optional cloud OCR fallback
 
-# ── Image Processing ──────────────────────────────────────────────────────
+#Image Processing
 Pillow>=10.0.0
 opencv-python-headless>=4.8.0
 
-# ── NLP ───────────────────────────────────────────────────────────────────
+#NLP
 spacy>=3.7.0
 # After install: python -m spacy download en_core_web_sm
 # Medical NER:   pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_core_sci_sm-0.5.3.tar.gz
 
-# ── Fuzzy Matching ────────────────────────────────────────────────────────
+#Fuzzy Matching
 rapidfuzz>=3.5.0
 
-# ── Text-to-Speech ────────────────────────────────────────────────────────
+#Text-to-Speech
 gTTS>=2.4.0
 
-# ── Data ──────────────────────────────────────────────────────────────────
+#Data
 numpy>=1.24.0
 pandas>=2.0.0
 requests>=2.31.0
