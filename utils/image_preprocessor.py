@@ -1,85 +1,39 @@
-"""
-utils/image_preprocessor.py
-────────────────────────────
-Image enhancement pipeline that significantly boosts OCR accuracy.
+import logging
+from PIL import Image, ImageEnhance
 
-Pipeline
---------
-1. Upscale  — ensure ≥ 1200 px wide (OCR struggles below 150 DPI)
-2. Grayscale
-3. CLAHE    — adaptive contrast enhancement
-4. Denoise  — Gaussian blur to reduce label noise
-5. Binarise — adaptive threshold for clean black/white text
-6. Deskew   — correct label rotation up to ±15°
-7. Return   — back to RGB PIL for Gemini vision / Tesseract
-"""
-
-import cv2
-import numpy as np
-from PIL import Image
-
+log = logging.getLogger(__name__)
 
 class ImagePreprocessor:
-    MIN_WIDTH = 1200   # minimum pixel width before upscaling
+    def __init__(self, max_size=(1600, 1600)):
+        # 1600px is a sweet spot: large enough for clear text, small enough for fast API uploads
+        self.max_size = max_size
 
-    def enhance(self, pil_img: Image.Image) -> Image.Image:
-        """Run the full enhancement pipeline. Returns RGB PIL Image."""
-        img = np.array(pil_img)
-
-        # 1. Upscale if needed
-        h, w = img.shape[:2]
-        if w < self.MIN_WIDTH:
-            scale = self.MIN_WIDTH / w
-            img   = cv2.resize(img, None, fx=scale, fy=scale,
-                               interpolation=cv2.INTER_CUBIC)
-
-        # 2. Grayscale
-        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
-        # 3. CLAHE contrast
-        clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
-        gray  = clahe.apply(gray)
-
-        # 4. Denoise
-        blurred = cv2.GaussianBlur(gray, (3, 3), 0)
-
-        # 5. Adaptive threshold
-        binary = cv2.adaptiveThreshold(
-            blurred, 255,
-            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY,
-            blockSize=15, C=4,
-        )
-
-        # 6. Deskew
-        binary = self._deskew(binary)
-
-        # 7. Back to RGB PIL
-        return Image.fromarray(cv2.cvtColor(binary, cv2.COLOR_GRAY2RGB))
-
-    def _deskew(self, gray: np.ndarray) -> np.ndarray:
-        """Correct small rotations using minAreaRect heuristic."""
+    def enhance(self, img: Image.Image) -> Image.Image:
+        """
+        Prepares the image specifically for Gemini's vision model.
+        Focuses on resizing for speed and mild enhancements for clarity.
+        """
         try:
-            coords = np.column_stack(np.where(gray > 0))
-            angle  = cv2.minAreaRect(coords)[-1]
-            if angle < -45:
-                angle += 90
-            if abs(angle) < 0.5:
-                return gray
-            (h, w) = gray.shape
-            M      = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
-            return cv2.warpAffine(gray, M, (w, h),
-                                  flags=cv2.INTER_CUBIC,
-                                  borderMode=cv2.BORDER_REPLICATE)
-        except Exception:
-            return gray
+            # 1. Standardize format
+            if img.mode != "RGB":
+                img = img.convert("RGB")
 
-    def stats(self, pil_img: Image.Image) -> dict:
-        """Useful debug info about image quality."""
-        arr = np.array(pil_img.convert("L"))
-        return {
-            "width":    pil_img.width,
-            "height":   pil_img.height,
-            "contrast": float(np.std(arr)),
-            "mean":     float(np.mean(arr)),
-        }
+            # 2. Resize down if the image is massive (e.g., straight from a 4K phone camera)
+            # thumbnail() maintains the aspect ratio automatically
+            img.thumbnail(self.max_size, Image.Resampling.LANCZOS)
+
+            # 3. Mild Contrast Boost (helps faded text stand out against the background)
+            contrast_enhancer = ImageEnhance.Contrast(img)
+            img = contrast_enhancer.enhance(1.2)  # 20% increase in contrast
+
+            # 4. Mild Sharpness Boost (helps define the edges of small, blurry letters)
+            sharpness_enhancer = ImageEnhance.Sharpness(img)
+            img = sharpness_enhancer.enhance(1.5)  # 50% increase in sharpness
+
+            log.info(f"Preprocessing complete. Final image size: {img.size}")
+            return img
+
+        except Exception as e:
+            log.error(f"Error during image preprocessing: {e}")
+            # Failsafe: If anything goes wrong, just return the original image so the app doesn't crash
+            return img

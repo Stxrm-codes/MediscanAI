@@ -1,128 +1,194 @@
-import os
-from flask import Flask, request, jsonify
+"""
+MediScan AI — OCR-Driven Medicine Detection & Smart Recommendation Platform
+===========================================================================
+Project Guide : Sanjana Bhavsar, Team Lead – Data Vidwan
+Description   : Accepts a medicine-strip image, runs OCR → NLP cleaning →
+                fuzzy drug matching → Gemini AI structured analysis, then
+                serves results through a modern web interface.
+"""
+
+import os, re, json, time, logging
+from io import BytesIO
+
+from flask import Flask, render_template, request, jsonify, send_file
+from dotenv import load_dotenv
 from PIL import Image
-import io
-
-# ---- OPTIONAL: Only keep required imports ----
-# Remove unused heavy libraries like gTTS
-
-# ---- Gemini Client ----
+from gtts import gTTS
 from google import genai
+from google.genai import types
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+from utils.image_preprocessor import ImagePreprocessor
 
-# ---- Flask App ----
-app = Flask(__name__)
+#Logging
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s [%(levelname)s] %(message)s")
+log = logging.getLogger(__name__)
 
-# Limit upload size (IMPORTANT)
-app.config["MAX_CONTENT_LENGTH"] = 4 * 1024 * 1024  # 4MB
+#App & env
+load_dotenv()
+API_KEY = os.getenv("GOOGLE_API_KEY")
+if not API_KEY:
+    raise EnvironmentError("GOOGLE_API_KEY not found in .env")
 
+app    = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024   # 16 MB
 
-# ---- BASIC IMAGE PREPROCESSOR ----
-class ImagePreprocessor:
-    def enhance(self, img):
-        # You can add enhancement if needed
-        return img
+client = genai.Client(api_key=API_KEY)
 
+#Module instances
+preprocessor = ImagePreprocessor()
 
-# ---- OCR ENGINE (Dummy / Replace with your actual OCR) ----
-class OCREngine:
-    def extract_text(self, img):
-        # Replace this with your OCR logic (Tesseract etc.)
-        return "sample extracted text"
+#Gemini safety (allow medical info)
+SAFETY = [
+    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+]
 
+# Core pipeline
 
-# ---- NLP MATCHING (Dummy / Replace with your logic) ----
-def find_best_match(text):
-    # Replace with your NLP + fuzzy matching logic
-    return ["Paracetamol", "Ibuprofen"]
+def run_pipeline(image_file, language: str) -> dict:
+    t0 = time.time()
 
+    # 1. Load & preprocess image (keep your preprocessor for better contrast)
+    img = Image.open(image_file)
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    enhanced = preprocessor.enhance(img)
 
-# ---- MAIN PIPELINE ----
-def run_pipeline(image_file):
-    try:
-        # ---- Load Image ----
-        img = Image.open(image_file)
+    # 2. Let Gemini do everything (OCR + NLP + Analysis)
+    prompt = f"""
+    You are a senior clinical pharmacist AI with expert OCR capabilities.
+    Analyse this medicine image. Read the text on the packaging carefully to identify the medicine.
 
-        # 🔥 Resize image (CRITICAL FIX)
-        img.thumbnail((512, 512))
+    Return ONLY a valid JSON object — zero markdown, zero code fences.
+    Required keys (exact spelling):
+      brand_name, generic_name, dosage, manufacturer,
+      drug_class, mechanism_of_action,
+      intended_use, therapeutic_benefits,
+      side_effects, contraindications, safety_warning,
+      alternatives, ocr_confidence
 
-        if img.mode != "RGB":
-            img = img.convert("RGB")
+    Rules:
+    • "alternatives" → comma-separated string of 2–3 similar drug names
+    • "ocr_confidence" → your confidence in reading the text on the image, e.g. "95%"
+    • Translate ALL field values to {language}
+    • Use "N/A" for any field you cannot determine from the image
+    """
 
-        # ---- Preprocess ----
-        preprocessor = ImagePreprocessor()
-        enhanced = preprocessor.enhance(img)
+    resp = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[prompt, enhanced],
+        config=types.GenerateContentConfig(safety_settings=SAFETY),
+    )
 
-        # ---- OCR ----
-        ocr_engine = OCREngine()
-        extracted_text = ocr_engine.extract_text(enhanced)
+    # Parse JSON (using your existing logic)
+    raw_json = resp.text.strip()
+    raw_json = re.sub(r"^```[a-z]*\s*", "", raw_json)
+    raw_json = re.sub(r"\s*```$",        "", raw_json).strip()
+    m = re.search(r"\{.*\}", raw_json, re.DOTALL)
+    result = json.loads(m.group(0) if m else raw_json)
 
-        # ---- NLP Matching ----
-        candidates = find_best_match(extracted_text)
+    # Meta logic simplified
+    result["_meta"] = {
+        "processing_time": f"{time.time()-t0:.2f}s",
+        "backends": ["Gemini Native OCR"]
+    }
 
-        # ---- Gemini Prompt (TEXT ONLY, NO IMAGE) ----
-        prompt = f"""
-        Extracted text from medicine image:
-        {extracted_text}
+    return result
 
-        Possible matches:
-        {candidates}
-
-        Provide:
-        - Correct medicine name
-        - Uses
-        - Dosage
-        - Precautions
-        """
-
-        # 🔥 IMPORTANT: DO NOT SEND IMAGE
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-
-        result_text = response.text if response else "No response"
-
-        # ---- Free Memory ----
-        del img
-        del enhanced
-
-        return {
-            "status": "success",
-            "extracted_text": extracted_text,
-            "candidates": candidates,
-            "result": result_text
-        }
-
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
-
-
-# ---- ROUTES ----
+# Routes
 @app.route("/")
-def home():
-    return "MediScanAI is running 🚀"
+def index():
+    return render_template("index.html")
 
 
-@app.route("/predict", methods=["POST"])
-def predict():
+@app.route("/analyze", methods=["POST"])
+def analyze():
+    """POST /analyze  —  image + language → structured JSON"""
     if "file" not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+        return jsonify({"error": "No image provided"}), 400
 
-    file = request.files["file"]
+    language = request.form.get("language", "English")
+    try:
+        result = run_pipeline(request.files["file"], language)
+        return jsonify({"result": result, "success": True})
+    except Exception as exc:
+        log.error("Analyze error: %s", exc, exc_info=True)
+        return jsonify({
+            "success": False,
+            "error"  : str(exc),
+            "result" : {
+                "brand_name": "Analysis Failed", "generic_name": "N/A",
+                "dosage": "N/A", "manufacturer": "N/A", "drug_class": "N/A",
+                "mechanism_of_action": "N/A", "intended_use": "N/A",
+                "therapeutic_benefits": "N/A", "side_effects": "N/A",
+                "contraindications": "N/A", "alternatives": "N/A",
+                "safety_warning": "Please upload a clearer image and try again.",
+                "ocr_confidence": "0%",
+                "_meta": {"ocr_raw": "", "ocr_candidates": [], "fuzzy_match": None,
+                          "fuzzy_score": 0, "processing_time": "—", "backends": []},
+            },
+        }), 200
 
-    if file.filename == "":
-        return jsonify({"error": "Empty filename"}), 400
 
-    result = run_pipeline(file)
-    return jsonify(result)
+@app.route("/chat", methods=["POST"])
+def chat():
+    """POST /chat  —  question + context → AI answer"""
+    data     = request.json or {}
+    question = data.get("question", "").strip()
+    context  = data.get("context",  {})
+    language = data.get("language", "English")
+
+    if not question:
+        return jsonify({"answer": "Please ask a question."}), 400
+
+    prompt = f"""
+You are MediScan AI, an expert medical information assistant.
+The user just scanned a medicine. Full details:
+{json.dumps(context, indent=2, ensure_ascii=False)}
+
+User question: "{question}"
+
+Answer helpfully in {language}.
+Base your answer on the provided data first; use general pharmacology knowledge only when necessary.
+Never prescribe specific dosages — always recommend consulting a doctor.
+Keep the answer clear and concise.
+"""
+    try:
+        resp = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(safety_settings=SAFETY),
+        )
+        return jsonify({"answer": resp.text})
+    except Exception as exc:
+        log.error("Chat error: %s", exc)
+        return jsonify({"answer": f"Error: {exc}"}), 500
 
 
-# ---- RUN ----
-if _name_ == '_main_':
+@app.route("/synthesize", methods=["POST"])
+def synthesize():
+    """POST /synthesize  —  text + language → mp3 audio"""
+    data     = request.json or {}
+    text     = data.get("text", "")
+    language = data.get("language", "English")
+
+    if not text:
+        return jsonify({"error": "No text"}), 400
+
+    lang_map = {"English": "en", "Hindi": "hi", "Gujarati": "gu"}
+    try:
+        tts = gTTS(text=text, lang=lang_map.get(language, "en"), slow=False)
+        buf = BytesIO()
+        tts.write_to_fp(buf)
+        buf.seek(0)
+        return send_file(buf, mimetype="audio/mpeg")
+    except Exception as exc:
+        log.error("TTS error: %s", exc)
+        return jsonify({"error": str(exc)}), 500
+
+if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
