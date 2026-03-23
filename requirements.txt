@@ -1,32 +1,41 @@
-#Web
-flask>=3.0.0
-python-dotenv>=1.0.0
-gunicorn>=21.2.0
+# Web & Core Server
+Flask==3.0.2
+Werkzeug==3.0.1
+python-dotenv==1.0.1
+gunicorn==21.2.0
 
-#Google AI
-google-genai>=0.5.0
+# Google AI
+google-genai==0.5.0
 
-#OCR
-easyocr>=1.7.1                 # Primary OCR — handles rotated/stylised labels
-pytesseract>=0.3.10            # Fallback (also install: sudo apt install tesseract-ocr)
-# google-cloud-vision>=3.4.0  # Optional cloud OCR fallback
+# --- CRITICAL RENDER OPTIMIZATION ---
+# Forces CPU-only PyTorch. 
+# Without this, Render will download the 2GB+ CUDA (GPU) version, 
+# which causes the build to fail due to Out-Of-Memory (OOM) errors.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.2.1+cpu
+torchvision==0.17.1+cpu
 
-#Image Processing
-Pillow>=10.0.0
-opencv-python-headless>=4.8.0
+# OCR
+easyocr==1.7.1
+pytesseract==0.3.10
 
-#NLP
-spacy>=3.7.0
-# After install: python -m spacy download en_core_web_sm
-# Medical NER:   pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_core_sci_sm-0.5.3.tar.gz
+# Image Processing
+Pillow==10.2.0
+opencv-python-headless==4.9.0.80
 
-#Fuzzy Matching
-rapidfuzz>=3.5.0
+# NLP
+spacy==3.7.4
+# Directly fetches the spaCy model during pip install, 
+# eliminating the need for a separate post-build download script.
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
 
-#Text-to-Speech
-gTTS>=2.4.0
+# Fuzzy Matching
+rapidfuzz==3.6.1
 
-#Data
-numpy>=1.24.0
-pandas>=2.0.0
-requests>=2.31.0
+# Text-to-Speech
+gTTS==2.5.1
+
+# Data
+numpy==1.26.4
+pandas==2.2.1
+requests==2.31.0
