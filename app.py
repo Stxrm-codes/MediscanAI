@@ -59,10 +59,33 @@ def run_pipeline(image_file, language: str) -> dict:
 
     # 2. Let Gemini do everything (OCR + NLP + Analysis)
     prompt = f"""
-    You are a senior clinical pharmacist AI with expert OCR capabilities.
-    Analyse this medicine image. Read the text on the packaging carefully to identify the medicine.
+    You are a strict, senior clinical pharmacist AI. 
+    
+    STEP 1: VERIFICATION
+    Look at the image. Is this a pharmaceutical medicine (e.g., pill strip, syrup bottle, ointment tube, prescription packaging)?
+    If the image is a beverage (like an energy drink, soda, or coffee), food, a person, or a random non-medical object, YOU MUST REJECT IT.
+    
+    If it is NOT a pharmaceutical medicine, return EXACTLY this JSON and nothing else:
+    {{
+      "brand_name": "Not a Medicine",
+      "generic_name": "N/A",
+      "dosage": "N/A",
+      "manufacturer": "N/A",
+      "drug_class": "N/A",
+      "mechanism_of_action": "N/A",
+      "intended_use": "N/A",
+      "therapeutic_benefits": "N/A",
+      "side_effects": "N/A",
+      "contraindications": "N/A",
+      "safety_warning": "This image does not appear to be a valid medicine. Please upload a clear photo of a medicine strip, pill bottle, or pharmaceutical packaging.",
+      "alternatives": "N/A",
+      "ocr_confidence": "0%"
+    }}
 
+    STEP 2: ANALYSIS (If it IS a valid medicine)
+    Analyse the medicine image. Read the text on the packaging carefully.
     Return ONLY a valid JSON object — zero markdown, zero code fences.
+    
     Required keys (exact spelling):
       brand_name, generic_name, dosage, manufacturer,
       drug_class, mechanism_of_action,
@@ -70,7 +93,7 @@ def run_pipeline(image_file, language: str) -> dict:
       side_effects, contraindications, safety_warning,
       alternatives, ocr_confidence
 
-    Rules:
+    Rules for valid medicines:
     • "alternatives" → comma-separated string of 2–3 similar drug names
     • "ocr_confidence" → your confidence in reading the text on the image, e.g. "95%"
     • Translate ALL field values to {language}
